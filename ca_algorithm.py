@@ -7,36 +7,32 @@ import time
 
 neighbour_rule = 'vonNeumann'
 border_rule = 'absorbing'    # OR 'absorbing'
-space_width = 50
-space_lengtth = 50
-cell_empty = np.array([255, 255, 255], dtype=int)
-cell_random = np.random.random(3)
-array = [[cell_empty for y in range(space_width)] for x in range(space_lengtth)]
-space = np.array(array)
+space_width = 200
+space_lengtth = 200
+cell_empty = np.zeros(3, dtype=np.uint8)
+space = np.zeros((space_width, space_lengtth, 3), dtype=np.uint8)
 
 fig = plt.figure()
 im = plt.imshow(space, animated=True)
+color_dict = {}
 
 
 def add_random(number):
     for i in range(number):
-        x = random.randint(0,space_lengtth-1)
-        y = random.randint(0,space_width-1)
-        space[x, y] = np.random.randint(0,255,3)
+        x = random.randint(0, space_lengtth-1)
+        y = random.randint(0, space_width-1)
+        space[x, y] = np.random.randint(0, 255, 3)
+        color_dict.setdefault(i, tuple(space[x, y]))
     plt.imshow(space)
-
-
-def add():
-    space[0, 1] = np.array([0,0,0])
-    plt.imshow(space)
+    return color_dict
 
 
 def one_step(space):
     t1 = time.time()
-    space_new = np.array([[cell_empty for y in range(space_width)] for x in range(space_lengtth)])
+    space_new = np.zeros((500, 500, 3), dtype=np.uint8)
     for x in range(space_width):
         for y in range(space_lengtth):
-            if (space[x, y]<cell_empty).any():
+            if (space[x, y] > cell_empty).any():
                 space_new[x, y] = space[x, y]
                 continue
             else:
@@ -50,8 +46,8 @@ def one_step(space):
                             cell_neigh = space[neigh[0], neigh[1]]
                     else:
                         cell_neigh = space[neigh[0], neigh[1]]
-                    if (cell_neigh<cell_empty).any():
-                        temp_val = neighbour_dict.setdefault(tuple(cell_neigh),0)
+                    if (cell_neigh > cell_empty).any():
+                        temp_val = neighbour_dict.setdefault(tuple(cell_neigh), 0)
                         temp_val += 1
                         neighbour_dict[tuple(cell_neigh)] = temp_val
                     else:
@@ -74,35 +70,61 @@ def check_nieghbours(x, y):
     if neighbour_rule == 'Moore':
         neighbour    = []
         if border_rule == 'snakelike':
-            neighbour.append(((x - 1)%space_width, (y - 1)%space_lengtth))
-            neighbour.append(((x - 1)%space_width, (y    )%space_lengtth))
-            neighbour.append(((x - 1)%space_width, (y + 1)%space_lengtth))
-            neighbour.append(((x    )%space_width, (y - 1)%space_lengtth))
-            neighbour.append(((x    )%space_width, (y + 1)%space_lengtth))
-            neighbour.append(((x + 1)%space_width, (y - 1)%space_lengtth))
-            neighbour.append(((x + 1)%space_width, (y    )%space_lengtth))
-            neighbour.append(((x + 1)%space_width, (y + 1)%space_lengtth))
+            neighbour = [((x - 1)%space_width, (y - 1)%space_lengtth),
+                         ((x - 1)%space_width, (y    )%space_lengtth),
+                         ((x - 1)%space_width, (y + 1)%space_lengtth),
+                         ((x    )%space_width, (y - 1)%space_lengtth),
+                         ((x    )%space_width, (y + 1)%space_lengtth),
+                         ((x + 1)%space_width, (y - 1)%space_lengtth),
+                         ((x + 1)%space_width, (y    )%space_lengtth),
+                         ((x + 1)%space_width, (y + 1)%space_lengtth)]
+
+            # neighbour.append(((x - 1)%space_width, (y - 1)%space_lengtth))
+            # neighbour.append(((x - 1)%space_width, (y    )%space_lengtth))
+            # neighbour.append(((x - 1)%space_width, (y + 1)%space_lengtth))
+            # neighbour.append(((x    )%space_width, (y - 1)%space_lengtth))
+            # neighbour.append(((x    )%space_width, (y + 1)%space_lengtth))
+            # neighbour.append(((x + 1)%space_width, (y - 1)%space_lengtth))
+            # neighbour.append(((x + 1)%space_width, (y    )%space_lengtth))
+            # neighbour.append(((x + 1)%space_width, (y + 1)%space_lengtth))
         else:
-            neighbour.append((x - 1, y - 1))
-            neighbour.append((x - 1, y    ))
-            neighbour.append((x - 1, y + 1))
-            neighbour.append((x, y - 1    ))
-            neighbour.append((x, y + 1    ))
-            neighbour.append((x + 1, y - 1))
-            neighbour.append((x + 1, y    ))
-            neighbour.append((x + 1, y + 1))
+            neighbour = [(x - 1, y - 1),
+                         (x - 1, y    ),
+                         (x - 1, y + 1),
+                         (x, y - 1    ),
+                         (x, y + 1    ),
+                         (x + 1, y - 1),
+                         (x + 1, y    ),
+                         (x + 1, y + 1)]
+            # neighbour.append((x - 1, y - 1))
+            # neighbour.append((x - 1, y    ))
+            # neighbour.append((x - 1, y + 1))
+            # neighbour.append((x, y - 1    ))
+            # neighbour.append((x, y + 1    ))
+            # neighbour.append((x + 1, y - 1))
+            # neighbour.append((x + 1, y    ))
+            # neighbour.append((x + 1, y + 1))
     elif neighbour_rule == 'vonNeumann':
         neighbour    = []
         if border_rule == 'snakelike':
-            neighbour.append(((x - 1)%space_width, (y    )%space_lengtth))
-            neighbour.append(((x + 1)%space_width, (y    )%space_lengtth))
-            neighbour.append(((x    )%space_width, (y + 1)%space_lengtth))
-            neighbour.append(((x    )%space_width, (y - 1)%space_lengtth))
+            neighbour = [((x - 1)%space_width, (y    )%space_lengtth),
+                         ((x + 1)%space_width, (y    )%space_lengtth),
+                         ((x    )%space_width, (y + 1)%space_lengtth),
+                         ((x    )%space_width, (y - 1)%space_lengtth)]
+
+            # neighbour.append(((x - 1)%space_width, (y    )%space_lengtth))
+            # neighbour.append(((x + 1)%space_width, (y    )%space_lengtth))
+            # neighbour.append(((x    )%space_width, (y + 1)%space_lengtth))
+            # neighbour.append(((x    )%space_width, (y - 1)%space_lengtth))
         else:
-            neighbour.append((x - 1, y))
-            neighbour.append((x + 1, y))
-            neighbour.append((x, y + 1))
-            neighbour.append((x, y - 1))
+            neighbour = [(x - 1, y),
+                         (x + 1, y),
+                         (x, y + 1),
+                         (x, y - 1)]
+            # neighbour.append((x - 1, y))
+            # neighbour.append((x + 1, y))
+            # neighbour.append((x, y + 1))
+            # neighbour.append((x, y - 1))
     return neighbour
 
 
