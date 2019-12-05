@@ -2,6 +2,9 @@ import numpy as np
 import random
 import time
 import copy
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
 
 class CellularAutomata:
@@ -18,6 +21,7 @@ class CellularAutomata:
         self.neighbours = self.choose_neighbours(string)
         self.color_id = {}
         self.coordinates = []
+        self.image = plt.figure()
 
     def evaluate_id(self, nei_list):
         counter = 0
@@ -70,6 +74,14 @@ class CellularAutomata:
         print(f"{time.time() - t1}")
         return
 
-ca = CellularAutomata(200, 200, 200)
+def get_cmap(n, name='RdGy'):
+    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct
+    RGB color; the keyword argument name must be a standard mpl colormap name.'''
+    return plt.cm.get_cmap(name, n)
+
+
+cmap = LinearSegmentedColormap.from_list('mycmap', ['white', 'blue', 'cyan', 'green', 'yellow','red'])
+ca = CellularAutomata(100, 200, 200)
 ca.add_random()
 ca.one_step()
+plt.imshow(ca.space, cmap=cmap)
