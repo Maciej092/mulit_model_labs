@@ -99,7 +99,8 @@ class CellularAutomata:
         for i in range(counter_max):
             random_x = np.random.randint(self.space_width - 1)
             random_y = np.random.randint(self.space_width - 1)
-            random_id = np.random.randint(self.number_of_reserved_ids, self.number_of_grains + self.number_of_reserved_ids)
+            random_id = np.random.randint(self.number_of_reserved_ids,
+                                          self.number_of_grains + self.number_of_reserved_ids)
             if self.space[random_x, random_y] == 0:
                 if random_id in reserved_ids:
                     counter_max += 1

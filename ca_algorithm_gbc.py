@@ -63,14 +63,18 @@ class CellularAutomataGBC:
             mask = x * x + y * y <= max_radius * max_radius
             self.space[mask] = 1
 
-    def add_random_dual_phase(self):
-        for i in range(self.number_of_grains):
+    def add_random_dual_phase(self, reserved_ids=[0]):
+        counter_max = self.number_of_grains
+        for i in range(counter_max):
             random_x = np.random.randint(self.space_width - 1)
             random_y = np.random.randint(self.space_width - 1)
             random_id = np.random.randint(self.number_of_reserved_ids,
                                           self.number_of_grains + self.number_of_reserved_ids)
             if self.space[random_x, random_y] == 0:
-                self.space[random_x, random_y] = random_id
+                if random_id in reserved_ids:
+                    counter_max += 1
+                else:
+                    self.space[random_x, random_y] = random_id
 
     def check_rule_1(self, space_prev, x, y):
         self.neighbours = self.MOORE

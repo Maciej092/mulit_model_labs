@@ -13,8 +13,12 @@ class Ui_MainWindow(object):
     def __init__(self):
         self.timer = QtCore.QTimer()
         self.gbc_is_on = False
+        self.dph_is_on = False
+        self.sbs_is_on = False
         self.number_of_clicked = 0
         self.number_of_clicked_gbc = 0
+        self.number_of_clicked_dph = 0
+        self.number_of_clicked_sbs = 0
         self.worker = Pool(1)
         self.result_space = None
         self.deleted_ids = list()
@@ -172,7 +176,7 @@ class Ui_MainWindow(object):
 
         self.pushButton_dual_phase_init = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_dual_phase_init.setObjectName("pushButton_dual_phase")
-        self.pushButton_dual_phase_init.clicked.connect(self.controller_dual_phase_init)
+        self.pushButton_dual_phase_init.clicked.connect(self.controller_dual_phase_add_random)
         self.formLayout_settings.setWidget(18, QtWidgets.QFormLayout.LabelRole, self.pushButton_dual_phase_init)
 
         self.pushButton_substructures = QtWidgets.QPushButton(self.centralwidget)
@@ -410,29 +414,48 @@ class Ui_MainWindow(object):
             self.comboBox_neighbours_rule.setEnabled(True)
 
     def controller_init_substructures(self):
-        kept_ids = self._ca_algo.list_of_id
+        self.number_of_clicked_sbs += 1
+        if self.number_of_clicked_sbs % 2:
+            self.pushButton_substructures.setStyleSheet("background-color: green")
+            self.sbs_is_on = True
+        else:
+            self.pushButton_substructures.setStyleSheet("background-color: none")
+            self.sbs_is_on = False
+        self.substr_kept_ids = self._ca_algo.list_of_id
         for one_id in self.deleted_ids:
-            kept_ids.remove(one_id)
-        for one_id in kept_ids:
+            self.substr_kept_ids.remove(one_id)
+        for one_id in self.substr_kept_ids:
             self._ca_algo.grain_model[one_id] = self._ca_algo.phase_nonzero
             self._ca_algo.color_id[one_id] = self._ca_algo.color_id[2]
         self.result_space = None
         self.view_display_image()
 
     def controller_init_dual_phase(self):
+        self.number_of_clicked_dph += 1
+        if self.number_of_clicked_dph % 2:
+            self.pushButton_dual_phase.setStyleSheet("background-color: green")
+            self.dph_is_on = True
+        else:
+            self.pushButton_dual_phase.setStyleSheet("background-color: none")
+            self.dph_is_on = False
         kept_ids = self._ca_algo.list_of_id
         for one_id in self.deleted_ids:
             kept_ids.remove(one_id)
-        # for one_id in kept_ids:
-        #     self._ca_algo.grain_model[one_id] = self._ca_algo.phase_nonzero
-        #     self._ca_algo.color_id[one_id] = self._ca_algo.color_id[2]
         for one_id in kept_ids:
             self._ca_algo.space[self._ca_algo.space == one_id] = 2
         self.result_space = None
         self.view_display_image()
 
-    def controller_dual_phase_init(self):
-        self._ca_algo.add_random_dual_phase()
+    def controller_dual_phase_add_random(self):
+        if self.sbs_is_on and not self.dph_is_on:
+            self._ca_algo.add_random_dual_phase(self.substr_kept_ids)
+        else:
+            self._ca_algo.add_random_dual_phase()
+        self.result_space = None
+        self.view_display_image()
+
+    def controller_substructures_add_random(self):
+        self._ca_algo.add_random_dual_phase(self.substr_kept_ids)
         self.result_space = None
         self.view_display_image()
 
